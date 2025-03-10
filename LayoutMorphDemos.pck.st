@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7036] on 9 March 2025 at 7:40:15 pm'!
+'From Cuis7.3 [latest update: #7036] on 10 March 2025 at 7:15:33 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 3!
+!provides: 'LayoutMorphDemos' 1 4!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
 
@@ -141,8 +141,32 @@ example7
 	path := '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img'.
 	layout writeJPEG: path, '/ch03-layoutmorph-example7.jpg'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 19:27:11'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/10/2025 07:02:54'!
 example8
+	| box1 box2 box3 layout path spacer1 spacer2 |
+				
+	box1 := ColoredBoxMorph new color: Color red; morphExtent: 50 @ 75.
+	box2 := ColoredBoxMorph new color: Color green; morphExtent: 75 @ 50.
+	box3 := ColoredBoxMorph new color: Color blue; morphExtent: 100 @ 100.
+	spacer1 := ColoredBoxMorph new color: Color transparent.
+	spacer1 layoutSpec proportionalWidth: 1.
+	spacer2 := ColoredBoxMorph new color: Color transparent.
+	spacer2 layoutSpec proportionalWidth: 1.
+	layout := LayoutMorph newRow
+		morphExtent: 350 @ 150;
+		separation: 10;
+		addMorph: box1;
+		addMorph: spacer1;
+		addMorph: box2;
+		addMorph: spacer2;
+		addMorph: box3.
+	layout openInWorld.
+	
+	path := '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img'.
+	layout writeJPEG: path, '/ch03-layoutmorph-example8.jpg'.! !
+
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/10/2025 07:00:36'!
+example9
 	| column1 column2 path row |
 	
 	column1 := LayoutMorph newColumn
@@ -167,7 +191,7 @@ example8
 	row openInWorld.
 	
 	path := '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img'.
-	row writeJPEG: path, '/ch03-layoutmorph-example8.jpg'.! !
+	row writeJPEG: path, '/ch03-layoutmorph-example9.jpg'.! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:13:22'!
 makeRow
