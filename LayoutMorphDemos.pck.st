@@ -1,6 +1,7 @@
-'From Cuis7.3 [latest update: #7066] on 11 March 2025 at 2:16:08 pm'!
+'From Cuis7.3 [latest update: #7068] on 13 March 2025 at 11:12:30 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 5!
+!provides: 'LayoutMorphDemos' 1 6!
+!requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
 
@@ -44,14 +45,14 @@ demo3
 	layout openInWorld.
 ! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:13:34'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:11:15'!
 example1
 	| layout |
 		
 	layout := self makeRow.
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example1.jpg'! !
+	layout writePNG: self path, '/ch03-layoutmorph-example1.jpg'! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:13:50'!
 example10
