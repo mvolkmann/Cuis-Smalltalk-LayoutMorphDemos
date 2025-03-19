@@ -1,9 +1,19 @@
-'From Cuis7.3 [latest update: #7068] on 13 March 2025 at 11:12:30 am'!
+'From Cuis7.3 [latest update: #7081] on 19 March 2025 at 12:34:41 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 6!
+!provides: 'LayoutMorphDemos' 1 7!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
+
+!classDefinition: #FormDemo category: #LayoutMorphDemos!
+Object subclass: #FormDemo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'FormDemo class' category: #LayoutMorphDemos!
+FormDemo class
+	instanceVariableNames: ''!
 
 !classDefinition: #LayoutMorphDemos category: #LayoutMorphDemos!
 Object subclass: #LayoutMorphDemos
@@ -15,6 +25,30 @@ Object subclass: #LayoutMorphDemos
 LayoutMorphDemos class
 	instanceVariableNames: ''!
 
+
+!FormDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/19/2025 12:30:39'!
+handleButtonClick
+
+	'got click' print! !
+
+!FormDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/19/2025 12:33:58'!
+initialize
+	| button extent label window |
+	
+	label := LabelMorph contents: 'Hello!!'.
+	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Click Me'.
+
+	window := SystemWindow new.
+	window
+		setLabel: 'Form Demo';
+		addMorph: label;
+		addMorph: button;
+		openInWorld.
+		
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	extent := window layoutMorph minimumExtent.
+	window morphExtent: 300 @ extent y.! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
@@ -45,16 +79,16 @@ demo3
 	layout openInWorld.
 ! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:11:15'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:13'!
 example1
 	| layout |
 		
 	layout := self makeRow.
 	layout openInWorld.
 	
-	layout writePNG: self path, '/ch03-layoutmorph-example1.jpg'! !
+	layout writePNG: self path, 'ch03-layoutmorph-example1.png'! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:13:50'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:17'!
 example10
 	| center column1 column2 row |
 	
@@ -85,9 +119,9 @@ example10
 				
 	row openInWorld.
 	
-	row writeJPEG: self path, '/ch03-layoutmorph-example10.jpg'.! !
+	row writePNG: self path, 'ch03-layoutmorph-example10.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:14:37'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:08'!
 example2
 	| layout |
 		
@@ -97,9 +131,9 @@ example2
 	"layout separation: 10."
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example2.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example2.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:01'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:24'!
 example3
 	| layout |
 		
@@ -108,9 +142,9 @@ example3
 	layout gap: 10.
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example3.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example3.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:10'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:46'!
 example4
 	| layout |
 		
@@ -120,9 +154,9 @@ example4
 	layout gap: 10.
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example4.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example4.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:19'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:42'!
 example5
 	| layout |
 		
@@ -133,9 +167,9 @@ example5
 	layout axisEdgeWeight: 0.5.
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example5.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example5.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:28'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:22:56'!
 example6
 	| layout |
 		
@@ -147,9 +181,9 @@ example6
 	layout submorphsDo: [:submorph | submorph layoutSpec offAxisEdgeWeight: 0].
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example6.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example6.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:35'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:23:02'!
 example7
 	| box1 box2 box3 layout |
 				
@@ -166,9 +200,9 @@ example7
 	layout submorphsDo: [:submorph | submorph layoutSpec offAxisEdgeWeight: 0].
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example7.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example7.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:48'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:23:08'!
 example8
 	| box1 box2 box3 layout spacer1 spacer2 |
 				
@@ -189,9 +223,9 @@ example8
 		addMorph: box3.
 	layout openInWorld.
 	
-	layout writeJPEG: self path, '/ch03-layoutmorph-example8.jpg'.! !
+	layout writePNG: self path, 'ch03-layoutmorph-example8.png'.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:15:57'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:23:16'!
 example9
 	| column1 column2 row |
 	
@@ -216,7 +250,7 @@ example9
 				
 	row openInWorld.
 	
-	row writeJPEG: self path, '/ch03-layoutmorph-example9.jpg'.! !
+	row writePNG: self path, 'ch03-layoutmorph-example9.png'.! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:13:22'!
 makeRow
@@ -230,6 +264,6 @@ makeRow
 		addMorph: box2;
 		addMorph: box3.! !
 
-!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/11/2025 14:13:09'!
+!LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:21:05'!
 path
-	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img'! !
+	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img/'! !
