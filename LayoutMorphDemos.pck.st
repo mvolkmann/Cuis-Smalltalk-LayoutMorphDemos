@@ -1,19 +1,9 @@
-'From Cuis7.3 [latest update: #7081] on 19 March 2025 at 12:34:41 pm'!
+'From Cuis7.3 [latest update: #7081] on 21 March 2025 at 11:42:39 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 7!
+!provides: 'LayoutMorphDemos' 1 12!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
-
-!classDefinition: #FormDemo category: #LayoutMorphDemos!
-Object subclass: #FormDemo
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'FormDemo class' category: #LayoutMorphDemos!
-FormDemo class
-	instanceVariableNames: ''!
 
 !classDefinition: #LayoutMorphDemos category: #LayoutMorphDemos!
 Object subclass: #LayoutMorphDemos
@@ -25,30 +15,36 @@ Object subclass: #LayoutMorphDemos
 LayoutMorphDemos class
 	instanceVariableNames: ''!
 
+!classDefinition: #TextModelMorphDemo1 category: #LayoutMorphDemos!
+Object subclass: #TextModelMorphDemo1
+	instanceVariableNames: 'firstNameText lastNameText'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'TextModelMorphDemo1 class' category: #LayoutMorphDemos!
+TextModelMorphDemo1 class
+	instanceVariableNames: ''!
 
-!FormDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/19/2025 12:30:39'!
-handleButtonClick
+!classDefinition: #TextModelMorphDemo2 category: #LayoutMorphDemos!
+Object subclass: #TextModelMorphDemo2
+	instanceVariableNames: 'firstNameTMM lastNameTMM firstNameText'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'TextModelMorphDemo2 class' category: #LayoutMorphDemos!
+TextModelMorphDemo2 class
+	instanceVariableNames: ''!
 
-	'got click' print! !
+!classDefinition: #UserInteractionDemo category: #LayoutMorphDemos!
+Object subclass: #UserInteractionDemo
+	instanceVariableNames: 'greetLabel firstNameModel lastName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'UserInteractionDemo class' category: #LayoutMorphDemos!
+UserInteractionDemo class
+	instanceVariableNames: ''!
 
-!FormDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/19/2025 12:33:58'!
-initialize
-	| button extent label window |
-	
-	label := LabelMorph contents: 'Hello!!'.
-	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Click Me'.
-
-	window := SystemWindow new.
-	window
-		setLabel: 'Form Demo';
-		addMorph: label;
-		addMorph: button;
-		openInWorld.
-		
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
-	extent := window layoutMorph minimumExtent.
-	window morphExtent: 300 @ extent y.! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
@@ -267,3 +263,272 @@ makeRow
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:21:05'!
 path
 	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img/'! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:45'!
+firstNameText
+
+	^ firstNameText! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:38'!
+firstNameText: aText
+
+	firstNameText := aText! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:19:27'!
+handleButtonClick
+	| message |
+	
+	"firstNameTMM scroller acceptContents."
+	"lastNameTMM scroller acceptContents."
+	message := 'Hello {1} {2}!!' format: { firstNameText asString. lastNameText asString }.
+	message print.! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:38:54'!
+initialize
+	| button extent firstNameRow firstNameTMM lastNameRow lastNameTMM window |
+		
+	firstNameText := Text string: ''.
+	firstNameTMM := TextModelMorph
+		textProvider: self
+		textGetter: #firstNameText
+		textSetter: #firstNameText:.
+	firstNameTMM
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		morphExtent: 200 @ 0; "calculates required height for one line"
+		tabToFocus: true;
+		wrapFlag: false.
+	firstNameRow := LayoutMorph newRow
+		gap: 10;
+		addMorph: (LabelMorph contents: 'First Name:');
+		addMorph: firstNameTMM.
+	firstNameRow layoutSpec proportionalHeight: 0.
+
+	lastNameText := Text string: ''.
+	lastNameTMM := TextModelMorph
+		textProvider: self
+		textGetter: #lastNameText
+		textSetter: #lastNameText:.
+	lastNameTMM
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		morphExtent: 200 @ 0; "calculates required height for one line"
+		tabToFocus: true;
+		wrapFlag: false.
+	lastNameRow := LayoutMorph newRow
+		gap: 10;
+		addMorph: (LabelMorph contents: 'Last Name:');
+		addMorph: lastNameTMM.
+	lastNameRow layoutSpec proportionalHeight: 0.
+
+	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Greet'.
+	
+	window := SystemWindow new.
+	window
+		setLabel: 'TextModelMorph Demo';
+		addMorph: firstNameRow;
+		addMorph: lastNameRow;
+		addMorph: button;
+		openInWorld.
+		
+	"Set a background color so it's clear where the TextModelMorphs
+	are placed when they do not have focus."
+	"TODO: Why must this be changed AFTER openInWorld?"
+	window layoutMorph
+		color: (Color blue alpha: 0.1);
+		separation: 10.
+			
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	extent := window layoutMorph minimumExtent.
+	window morphExtent: 400 @ extent y.
+
+! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:11:05'!
+lastNameText
+
+	^ lastNameText! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:11:13'!
+lastNameText: aText
+
+	lastNameText := aText! !
+
+!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:25'!
+text: aText
+
+	text := aText! !
+
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:06:35'!
+handleButtonClick
+	| message |
+	
+	"firstNameTMM scroller acceptContents."
+	"lastNameTMM scroller acceptContents."
+	message := 'Hello {1} {2}!!' format: { firstNameTMM text. lastNameTMM text }.
+	message print.! !
+
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:42:33'!
+initialize
+	| button extent firstNameRow lastNameRow window |
+		
+	firstNameRow := self rowLabel: 'First Name:'.
+	firstNameTMM := firstNameRow firstSubmorph.
+	lastNameRow := self rowLabel: 'Last Name:'.
+	lastNameTMM := lastNameRow firstSubmorph.
+	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Greet'.
+	
+	window := SystemWindow new.
+	window
+		setLabel: 'TextModelMorph Demo';
+		addMorph: firstNameRow;
+		addMorph: lastNameRow;
+		addMorph: button;
+		openInWorld.
+		
+	"Set a background color so it's clear where the TextModelMorphs
+	are placed when they do not have focus."
+	"TODO: Why must this be changed AFTER openInWorld?"
+	window layoutMorph
+		color: (Color blue alpha: 0.1);
+		separation: 10.
+			
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	extent := window layoutMorph minimumExtent.
+	window morphExtent: 400 @ extent y.
+	
+	"TODO: Why isn't this trigger calls to update: ?"
+	firstNameTMM model addDependent: self.
+	lastNameTMM model addDependent: self.! !
+
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:36:21'!
+rowLabel: aString
+	| row tmm |
+		
+	tmm := TextModelMorph withText: '' ::
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		morphExtent: 200 @ 0; "calculates required height for one line"
+		tabToFocus: true;
+		wrapFlag: false.
+	row := LayoutMorph newRow
+		gap: 10;
+		addMorph: (LabelMorph contents: aString);
+		addMorph: tmm.
+	row layoutSpec proportionalHeight: 0.
+	^ row.
+
+! !
+
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:39:25'!
+update: someValue
+
+	'got update' print.
+	someValue print.! !
+
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 15:48:57'!
+handleButtonClick
+	| firstName greeting |
+
+	firstName := firstNameModel actualContents.
+	greeting := firstName isEmpty ifTrue: '' ifFalse: [ 'Hello ', firstName, '!!' ].
+	greetLabel contents: greeting.
+	
+	lastName logAs: 'lastName'.! !
+
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:04:05'!
+initialize
+	| button extent firstNameInput form image label lastNameInput percent row textArea window |
+	
+	percent := 0.75.
+	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
+	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: percent.
+	image := ImageMorph newWith: form ::
+		scaleBy: percent;
+		borderColor: Color red;
+		borderWidth: 2.
+	"extent := image morphExtent."
+	"image morphExtent: (extent x * percent) @ (extent y * percent)."
+	
+	label := LabelMorph contents: 'First Name:'.
+	firstNameModel := TextModel withText: ''.
+	firstNameInput := TextModelMorph withModel: firstNameModel ::
+		askBeforeDiscardingEdits: false;
+		emptyTextDisplayMessage: 'first name';
+		hideScrollBarsIndefinitely;
+		"Width is set to zero because it is made proportional below.
+		 Minimum height for font size is calculated when set to zero."
+		morphExtent: 0 @ 0;
+		wrapFlag: false.
+	firstNameInput layoutSpec proportionalWidth: 1.	
+	row := LayoutMorph newRow
+		gap: 10;
+		addMorph: label;
+		addMorph: firstNameInput.
+		
+	lastName := ''.
+	lastNameInput := TextModelMorph textProvider: self textGetter: #lastName textSetter: #lastName:.
+	lastNameInput askBeforeDiscardingEdits: false.
+	
+	textArea := TextModelMorph withText: '' ::
+		askBeforeDiscardingEdits: false.
+		"borderWidth: 1;
+		borderColor: Color red"
+
+	textArea layoutSpec proportionalWidth: 1.
+	
+	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Click Me'.
+
+	"TODO: Add a checkbox. "
+	"TODO: Add radiobuttons."
+	
+	greetLabel := LabelMorph contents: ''.
+	
+	window := SystemWindow new.
+	window layoutMorph separation: 10.
+	window
+		setLabel: 'User Interaction Demo';
+		addMorph: image;
+		addMorph: row;
+		addMorph: lastNameInput;
+		addMorph: textArea;
+		addMorph: button;
+		addMorph: greetLabel;
+		openInWorld.
+		
+	image morphExtent: 158 @ 208.
+	image minimumExtent logAs: 'min extent'.
+	
+	"Set a background color so it's clear where the TextModelMorphs
+	are placed when they do not have focus."
+	"TODO: Why must this be changed AFTER openInWorld?"
+	window layoutMorph color: (Color blue alpha: 0.1).
+			
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	extent := window layoutMorph minimumExtent.
+	window morphExtent: 400 @ extent y.
+	
+! !
+
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 15:48:21'!
+lastName
+
+	^ lastName! !
+
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:08:37'!
+lastName: aString
+
+	aString logAs: 'lastName: aString'.
+	lastName := aString.
+	self changed.! !
+
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:20:46'!
+update: aString
+
+	aString logAs: 'UserInteractionDemo update: aString'! !
