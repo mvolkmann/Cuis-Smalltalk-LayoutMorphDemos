@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7081] on 21 March 2025 at 11:42:39 am'!
+'From Cuis7.3 [latest update: #7087] on 23 March 2025 at 8:16:52 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 12!
+!provides: 'LayoutMorphDemos' 1 15!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -13,6 +13,16 @@ Object subclass: #LayoutMorphDemos
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'LayoutMorphDemos class' category: #LayoutMorphDemos!
 LayoutMorphDemos class
+	instanceVariableNames: ''!
+
+!classDefinition: #TextModelMorphDemo category: #LayoutMorphDemos!
+Object subclass: #TextModelMorphDemo
+	instanceVariableNames: 'text textModel'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'TextModelMorphDemo class' category: #LayoutMorphDemos!
+TextModelMorphDemo class
 	instanceVariableNames: ''!
 
 !classDefinition: #TextModelMorphDemo1 category: #LayoutMorphDemos!
@@ -264,6 +274,59 @@ makeRow
 path
 	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img/'! !
 
+!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
+handleButtonClick
+	textModel scroller acceptContents.
+	self changed: #text:.
+	self changed: #relabel! !
+
+!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:42:11'!
+initialize
+	| button tm1 tm2 row window |
+		
+	text := 'initial value'.
+	textModel := TextModelMorph textProvider: self textGetter: #text textSetter: #text:.
+	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Click Me'.
+	
+	tm1 := TextModelMorph textProvider: self textGetter: #text textSetter:nil ::
+		disableEditing. 
+	tm2 := TextModelMorph textProvider: self textGetter: #text textSetter:nil ::
+		disableEditing;
+		morphExtent: 40@300 .  
+	row := LayoutMorph newRow.
+	row addMorph: tm2;
+		addMorph: (LayoutMorph newColumn ::
+			addMorph: textModel;
+			addMorph: button;
+			addMorph: tm1).
+		
+	window := SystemWindow new
+		setLabel: 'TextModelMorphDemo';
+		model: self;
+		addMorph: row.
+		
+	"The observer pattern, better "
+	self when: #relabel send: #relabel to: window.
+	window openInWorld.
+		
+! !
+
+!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:15'!
+labelString
+	^ text contractTo: 10! !
+
+!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:31:41'!
+text
+
+	^ text! !
+
+!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:42:48'!
+text: aString
+	text := aString asString copy.
+	self changed: #text.
+	self changed: #clearUserEdits.
+	self changed: #relabel "Same as self triggerEvent: #relabel"! !
+
 !TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:45'!
 firstNameText
 
@@ -362,16 +425,17 @@ text: aText
 
 	text := aText! !
 
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:06:35'!
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 07:43:50'!
 handleButtonClick
 	| message |
 	
 	"firstNameTMM scroller acceptContents."
 	"lastNameTMM scroller acceptContents."
+	firstNameTMM model actualContents logAs: 'actualContents'.
 	message := 'Hello {1} {2}!!' format: { firstNameTMM text. lastNameTMM text }.
 	message print.! !
 
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:42:33'!
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 08:16:24'!
 initialize
 	| button extent firstNameRow lastNameRow window |
 		
@@ -401,9 +465,10 @@ initialize
 	extent := window layoutMorph minimumExtent.
 	window morphExtent: 400 @ extent y.
 	
-	"TODO: Why isn't this trigger calls to update: ?"
-	firstNameTMM model addDependent: self.
-	lastNameTMM model addDependent: self.! !
+	"This requires adding the following in InnerTextMorph acceptContents after accepted is set:
+	accepted class = TextModel ifTrue: [ owner changed: owner ]."
+	firstNameTMM addDependent: self.
+	lastNameTMM addDependent: self.! !
 
 !TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:36:21'!
 rowLabel: aString
@@ -425,11 +490,19 @@ rowLabel: aString
 
 ! !
 
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:39:25'!
-update: someValue
-
-	'got update' print.
-	someValue print.! !
+!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 08:14:45'!
+update: sender
+	| value |
+	
+	sender = firstNameTMM ifTrue: [
+		value := sender model actualContents asString.
+		'first name is now ', value :: print
+	].
+	sender = lastNameTMM ifTrue: [
+		value := sender model actualContents asString.
+		'last name is now ', value :: print
+	].
+! !
 
 !UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 15:48:57'!
 handleButtonClick
@@ -441,19 +514,14 @@ handleButtonClick
 	
 	lastName logAs: 'lastName'.! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:04:05'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 07:07:23'!
 initialize
 	| button extent firstNameInput form image label lastNameInput percent row textArea window |
 	
 	percent := 0.75.
 	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
 	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: percent.
-	image := ImageMorph newWith: form ::
-		scaleBy: percent;
-		borderColor: Color red;
-		borderWidth: 2.
-	"extent := image morphExtent."
-	"image morphExtent: (extent x * percent) @ (extent y * percent)."
+	image := ImageMorph newWith: form.
 	
 	label := LabelMorph contents: 'First Name:'.
 	firstNameModel := TextModel withText: ''.
@@ -501,9 +569,6 @@ initialize
 		addMorph: greetLabel;
 		openInWorld.
 		
-	image morphExtent: 158 @ 208.
-	image minimumExtent logAs: 'min extent'.
-	
 	"Set a background color so it's clear where the TextModelMorphs
 	are placed when they do not have focus."
 	"TODO: Why must this be changed AFTER openInWorld?"
