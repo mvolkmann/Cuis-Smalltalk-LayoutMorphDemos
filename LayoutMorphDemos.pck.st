@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7087] on 24 March 2025 at 4:30:09 pm'!
+'From Cuis7.3 [latest update: #7087] on 24 March 2025 at 4:40:57 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 16!
+!provides: 'LayoutMorphDemos' 1 17!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -541,22 +541,23 @@ update: arg
 	arg logAs: 'arg'.
 ! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:28:23'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:30:40'!
 greet
 	| firstName greeting lastName |
 
 	firstName := firstNameTMM text.
 	lastName := lastNameTMM text.
-	greeting := firstName isEmpty ifTrue: '' ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
+	greeting := firstName isEmpty
+		ifTrue: ''
+		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
 	greetLabel contents: greeting.! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:26:59'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:31:15'!
 initialize
-	| button extent firstNameRow form image lastNameRow percent window |
+	| button extent firstNameRow form image lastNameRow window |
 	
-	percent := 0.75.
 	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
-	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: percent.
+	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: 0.5.
 	image := ImageMorph newWith: form.
 	
 	firstNameRow := self rowLabel: 'First Name:'.
@@ -593,19 +594,7 @@ initialize
 	
 ! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 15:48:21'!
-lastName
-
-	^ lastName! !
-
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:08:37'!
-lastName: aString
-
-	aString logAs: 'lastName: aString'.
-	lastName := aString.
-	self changed.! !
-
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:19:32'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:33:30'!
 rowLabel: aString
 	| row tmm |
 		
@@ -613,17 +602,15 @@ rowLabel: aString
 		acceptOnAny: true;
 		askBeforeDiscardingEdits: false;
 		hideScrollBarsIndefinitely;
-		morphExtent: 200 @ 0; "calculates required height for one line"
+		"Width is made proportional below.
+		Setting height to zero causes it to use minimum height for one line."
+		morphExtent: 0 @ 0;
 		tabToFocus: true;
 		wrapFlag: false.
+	tmm layoutSpec proportionalWidth: 1.
 	row := LayoutMorph newRow
 		gap: 10;
 		addMorph: (LabelMorph contents: aString);
 		addMorph: tmm.
 	row layoutSpec proportionalHeight: 0.
 	^ row.! !
-
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:20:46'!
-update: aString
-
-	aString logAs: 'UserInteractionDemo update: aString'! !
