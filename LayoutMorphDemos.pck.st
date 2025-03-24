@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7087] on 24 March 2025 at 4:40:57 pm'!
+'From Cuis7.3 [latest update: #7087] on 24 March 2025 at 4:46:03 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 17!
+!provides: 'LayoutMorphDemos' 1 18!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -552,7 +552,7 @@ greet
 		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
 	greetLabel contents: greeting.! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:31:15'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:43:55'!
 initialize
 	| button extent firstNameRow form image lastNameRow window |
 	
@@ -565,9 +565,6 @@ initialize
 	lastNameRow := self rowLabel: 'Last Name:'.
 	lastNameTMM := lastNameRow submorphs first.
 	button := PluggableButtonMorph model: self action: #greet label: 'Greet'.
-
-	"TODO: Add a checkbox. "
-	"TODO: Add radiobuttons."
 	
 	greetLabel := LabelMorph contents: ''.
 	
@@ -594,8 +591,9 @@ initialize
 	
 ! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:33:30'!
+!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:45:49'!
 rowLabel: aString
+	"Answer a row LayoutMorph containing a LabelMorph and a TextModelMorph."
 	| row tmm |
 		
 	tmm := TextModelMorph withText: '' ::
