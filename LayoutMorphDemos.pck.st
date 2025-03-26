@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 1:13:47 pm'!
+'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 3:19:44 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 22!
+!provides: 'LayoutMorphDemos' 1 26!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -23,6 +23,16 @@ Object subclass: #LayoutMorphDemos
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'LayoutMorphDemos class' category: #LayoutMorphDemos!
 LayoutMorphDemos class
+	instanceVariableNames: ''!
+
+!classDefinition: #ListDemo category: #LayoutMorphDemos!
+Object subclass: #ListDemo
+	instanceVariableNames: 'layout selectedColorIndex colors'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'ListDemo class' category: #LayoutMorphDemos!
+ListDemo class
 	instanceVariableNames: ''!
 
 !classDefinition: #TextModelMorphDemo category: #LayoutMorphDemos!
@@ -86,7 +96,7 @@ UserInteractionDemoOld class
 	instanceVariableNames: ''!
 
 
-!ButtonDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 12:39:35'!
+!ButtonDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 15:09:02'!
 toggleColor
 	
 	layout color: (
@@ -96,7 +106,7 @@ toggleColor
 	)
 ! !
 
-!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 12:39:43'!
+!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 15:16:37'!
 initialize
 	| button extent window |
 	
@@ -337,6 +347,47 @@ makeRow
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'RMV 3/13/2025 11:21:05'!
 path
 	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img/'! !
+
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:15:39'!
+colors
+
+	^ colors! !
+
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
+selectedColorIndex
+
+	^ selectedColorIndex
+! !
+
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:47'!
+selectedColorIndex: anInteger
+
+	selectedColorIndex := anInteger
+! !
+
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 15:16:05'!
+initialize
+	| list window |
+	
+	colors := #(red green blue).
+	selectedColorIndex := 1.
+	
+	list := PluggableListMorph
+		withModel: self
+		listGetter: #colors
+		indexGetter: #selectedColorIndex
+		indexSetter: #selectedColorIndex:.
+	window := SystemWindow new.
+	window
+		setLabel: 'List Demo';
+		addMorph: list;
+		openInWorld.
+		
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	layout := window layoutMorph.
+	layout padding: 10.
+	window morphExtent: 300 @ layout minimumExtent y.! !
 
 !TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
 handleButtonClick
@@ -615,9 +666,9 @@ lastName: aString
 
 	lastName := aString! !
 
-!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/25/2025 13:42:53'!
+!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 13:45:32'!
 greet
-	|  greeting |
+	| greeting |
 
 	greeting := firstName isEmpty
 		ifTrue: ''
@@ -636,12 +687,12 @@ rowLabeled: aString for: aMorph
 	row layoutSpec proportionalHeight: 0.
 	^ row.! !
 
-!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/25/2025 18:49:32'!
+!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 13:44:33'!
 textEntryOn: aSymbol
 	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
-	| tmm |
+	| entry |
 		
-	tmm := TextModelMorph
+	entry := TextModelMorph
 		textProvider: self
 		textGetter: aSymbol
 		textSetter: (aSymbol, ':') asSymbol ::
@@ -653,13 +704,13 @@ textEntryOn: aSymbol
 		morphExtent: 0 @ 0;
 		tabToFocus: true;
 		wrapFlag: false.
-	tmm layoutSpec proportionalWidth: 1.
-	^ tmm.
+	entry layoutSpec proportionalWidth: 1.
+	^ entry.
 ! !
 
-!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 3/25/2025 18:53:19'!
+!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 14:49:37'!
 initialize
-	| button extent firstNameTMM form image lastNameTMM window |
+	| button extent firstNameEntry form image lastNameEntry window |
 	
 	firstName := ''.
 	lastName := ''.
@@ -668,8 +719,8 @@ initialize
 	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: 0.5.
 	image := ImageMorph newWith: form.
 	
-	firstNameTMM := self textEntryOn: #firstName.
-	lastNameTMM := self textEntryOn: #lastName.
+	firstNameEntry := self textEntryOn: #firstName.
+	lastNameEntry := self textEntryOn: #lastName.
 	button := PluggableButtonMorph model: self action: #greet label: 'Greet'.
 	
 	greetLabel := LabelMorph contents: ''.
@@ -679,8 +730,8 @@ initialize
 	window
 		setLabel: 'User Interaction Demo';
 		addMorph: image;
-		addMorph: (self rowLabeled: 'First Name:' for: firstNameTMM);
-		addMorph: (self rowLabeled: 'Last Name:' for: lastNameTMM);
+		addMorph: (self rowLabeled: 'First Name:' for: firstNameEntry);
+		addMorph: (self rowLabeled: 'Last Name:' for: lastNameEntry);
 		addMorph: button;
 		addMorph: greetLabel;
 		openInWorld.
