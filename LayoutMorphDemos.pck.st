@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7087] on 26 March 2025 at 11:31:28 am'!
+'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 1:13:47 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 21!
+!provides: 'LayoutMorphDemos' 1 22!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -86,17 +86,17 @@ UserInteractionDemoOld class
 	instanceVariableNames: ''!
 
 
-!ButtonDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 11:24:49'!
+!ButtonDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 12:39:35'!
 toggleColor
 	
 	layout color: (
 		layout color = Color red
 			ifTrue: [ Color blue ]
 			ifFalse: [ Color red ]
-	).
+	)
 ! !
 
-!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 11:31:12'!
+!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 12:39:43'!
 initialize
 	| button extent window |
 	
@@ -118,9 +118,7 @@ initialize
 	This must be done AFTER the window is opened."
 	layout := window layoutMorph.
 	layout padding: 10.
-	window morphExtent: 300 @ layout minimumExtent y.
-	
-! !
+	window morphExtent: 300 @ layout minimumExtent y.! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
