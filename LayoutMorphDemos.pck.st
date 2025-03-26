@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 3:19:44 pm'!
+'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 4:04:35 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 26!
+!provides: 'LayoutMorphDemos' 1 30!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -27,7 +27,7 @@ LayoutMorphDemos class
 
 !classDefinition: #ListDemo category: #LayoutMorphDemos!
 Object subclass: #ListDemo
-	instanceVariableNames: 'layout selectedColorIndex colors'
+	instanceVariableNames: 'colorList colors newColor newColorEntry selectedColorIndex selectedLabel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -353,34 +353,56 @@ colors
 
 	^ colors! !
 
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:43:59'!
+newColor
+
+	^ newColor
+! !
+
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 16:02:13'!
+newColor: aString
+
+	newColor := aString
+! !
+
 !ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
 selectedColorIndex
 
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:47'!
-selectedColorIndex: anInteger
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:54:25'!
+selectedColorIndex: anIndex
 
-	selectedColorIndex := anInteger
-! !
+	selectedColorIndex := anIndex.
+	selectedLabel contents: ('You selected {1}.' format: { colors at: anIndex }).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 15:16:05'!
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 16:02:27'!
 initialize
-	| list window |
+	| addButton deleteButton layout window |
 	
-	colors := #(red green blue).
-	selectedColorIndex := 1.
+	colors := SortedCollection newFrom: #(red green blue).
+	selectedColorIndex := 0.
+	newColor := ''.
 	
-	list := PluggableListMorph
+	colorList := PluggableListMorph
 		withModel: self
 		listGetter: #colors
 		indexGetter: #selectedColorIndex
 		indexSetter: #selectedColorIndex:.
+	newColorEntry :=  self textEntryOn: #newColor.
+	addButton := PluggableButtonMorph model: self action: #addColor label: 'Add Color'.
+	deleteButton := PluggableButtonMorph model: self action: #deleteColor label: 'Delete Selected Color'.
+	selectedLabel := LabelMorph contents: ''.
+	
 	window := SystemWindow new.
 	window
 		setLabel: 'List Demo';
-		addMorph: list;
+		addMorph: colorList;
+		addMorph: newColorEntry;
+		addMorph: addButton;
+		addMorph: deleteButton;
+		addMorph: selectedLabel;
 		openInWorld.
 		
 	"Set window size to the smallest height that contains its submorphs.
@@ -388,6 +410,46 @@ initialize
 	layout := window layoutMorph.
 	layout padding: 10.
 	window morphExtent: 300 @ layout minimumExtent y.! !
+
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 16:04:26'!
+addColor
+
+	newColor isEmpty ifFalse: [
+		colors add: newColor string asSymbol.
+		newColorEntry contents:​ ''.
+		colorList updateList.
+	]! !
+
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 16:03:44'!
+deleteColor
+
+	selectedColorIndex = 0 ifFalse: [
+		colors removeAt: selectedColorIndex.
+		colorList updateList.
+		selectedColorIndex := 0.
+		selectedLabel contents: ''.
+	]! !
+
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 15:28:12'!
+textEntryOn: aSymbol
+	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
+	| entry |
+		
+	entry := TextModelMorph
+		textProvider: self
+		textGetter: aSymbol
+		textSetter: (aSymbol, ':') asSymbol ::
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		"Width is made proportional below.
+		Setting height to zero causes it to use minimum height for one line."
+		morphExtent: 0 @ 0;
+		tabToFocus: true;
+		wrapFlag: false.
+	entry layoutSpec proportionalWidth: 1.
+	^ entry.
+! !
 
 !TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
 handleButtonClick
