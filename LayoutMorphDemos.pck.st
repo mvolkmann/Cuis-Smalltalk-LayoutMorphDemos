@@ -1,9 +1,19 @@
-'From Cuis7.3 [latest update: #7087] on 24 March 2025 at 4:46:03 pm'!
+'From Cuis7.3 [latest update: #7087] on 26 March 2025 at 11:31:28 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 18!
+!provides: 'LayoutMorphDemos' 1 21!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
+
+!classDefinition: #ButtonDemo category: #LayoutMorphDemos!
+Object subclass: #ButtonDemo
+	instanceVariableNames: 'layout'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'ButtonDemo class' category: #LayoutMorphDemos!
+ButtonDemo class
+	instanceVariableNames: ''!
 
 !classDefinition: #LayoutMorphDemos category: #LayoutMorphDemos!
 Object subclass: #LayoutMorphDemos
@@ -57,7 +67,7 @@ TextModelMorphDemo3 class
 
 !classDefinition: #UserInteractionDemo category: #LayoutMorphDemos!
 Object subclass: #UserInteractionDemo
-	instanceVariableNames: 'greetLabel firstNameTMM lastNameTMM'
+	instanceVariableNames: 'firstName greetLabel lastName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -65,6 +75,52 @@ Object subclass: #UserInteractionDemo
 UserInteractionDemo class
 	instanceVariableNames: ''!
 
+!classDefinition: #UserInteractionDemoOld category: #LayoutMorphDemos!
+Object subclass: #UserInteractionDemoOld
+	instanceVariableNames: 'greetLabel firstNameTMM lastNameTMM'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'UserInteractionDemoOld class' category: #LayoutMorphDemos!
+UserInteractionDemoOld class
+	instanceVariableNames: ''!
+
+
+!ButtonDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 11:24:49'!
+toggleColor
+	
+	layout color: (
+		layout color = Color red
+			ifTrue: [ Color blue ]
+			ifFalse: [ Color red ]
+	).
+! !
+
+!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 11:31:12'!
+initialize
+	| button extent window |
+	
+	button := PluggableButtonMorph
+		model: self
+		action: #toggleColor
+		label: 'Toggle'.
+	button setBalloonText: 'toggle background color'.
+	window := SystemWindow new.
+	window
+		setLabel: 'Button Demo';
+		addMorph: button;
+		openInWorld.
+		
+	extent := button morphExtent.
+	button morphExtent: (extent x + 15) @ extent y.
+		
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	layout := window layoutMorph.
+	layout padding: 10.
+	window morphExtent: 300 @ layout minimumExtent y.
+	
+! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
@@ -541,7 +597,109 @@ update: arg
 	arg logAs: 'arg'.
 ! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:30:40'!
+!UserInteractionDemo methodsFor: 'accessing' stamp: 'rmv 3/25/2025 13:42:46'!
+firstName
+
+	^ firstName! !
+
+!UserInteractionDemo methodsFor: 'accessing' stamp: 'rmv 3/25/2025 13:42:46'!
+firstName: aString
+
+	firstName := aString! !
+
+!UserInteractionDemo methodsFor: 'accessing' stamp: 'rmv 3/25/2025 13:42:53'!
+lastName
+
+	^ lastName! !
+
+!UserInteractionDemo methodsFor: 'accessing' stamp: 'rmv 3/25/2025 13:42:53'!
+lastName: aString
+
+	lastName := aString! !
+
+!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/25/2025 13:42:53'!
+greet
+	|  greeting |
+
+	greeting := firstName isEmpty
+		ifTrue: ''
+		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
+	greetLabel contents: greeting.! !
+
+!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/25/2025 18:50:48'!
+rowLabeled: aString for: aMorph
+	"Answer a row LayoutMorph containing a LabelMorph and a given morph."
+	| row |
+		
+	row := LayoutMorph newRow
+		gap: 10;
+		addMorph: (LabelMorph contents: aString);
+		addMorph: aMorph.
+	row layoutSpec proportionalHeight: 0.
+	^ row.! !
+
+!UserInteractionDemo methodsFor: 'private' stamp: 'rmv 3/25/2025 18:49:32'!
+textEntryOn: aSymbol
+	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
+	| tmm |
+		
+	tmm := TextModelMorph
+		textProvider: self
+		textGetter: aSymbol
+		textSetter: (aSymbol, ':') asSymbol ::
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		"Width is made proportional below.
+		Setting height to zero causes it to use minimum height for one line."
+		morphExtent: 0 @ 0;
+		tabToFocus: true;
+		wrapFlag: false.
+	tmm layoutSpec proportionalWidth: 1.
+	^ tmm.
+! !
+
+!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 3/25/2025 18:53:19'!
+initialize
+	| button extent firstNameTMM form image lastNameTMM window |
+	
+	firstName := ''.
+	lastName := ''.
+	
+	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
+	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: 0.5.
+	image := ImageMorph newWith: form.
+	
+	firstNameTMM := self textEntryOn: #firstName.
+	lastNameTMM := self textEntryOn: #lastName.
+	button := PluggableButtonMorph model: self action: #greet label: 'Greet'.
+	
+	greetLabel := LabelMorph contents: ''.
+	
+	window := SystemWindow new.
+	window layoutMorph separation: 10.
+	window
+		setLabel: 'User Interaction Demo';
+		addMorph: image;
+		addMorph: (self rowLabeled: 'First Name:' for: firstNameTMM);
+		addMorph: (self rowLabeled: 'Last Name:' for: lastNameTMM);
+		addMorph: button;
+		addMorph: greetLabel;
+		openInWorld.
+		
+	"Set a background color so it's clear where the TextModelMorphs
+	are placed when they do not have focus."
+	"TODO: Why must this be changed AFTER openInWorld?"
+	window layoutMorph color: (Color blue alpha: 0.1).
+			
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	extent := window layoutMorph minimumExtent.
+	window morphExtent: 400 @ extent y.
+	
+! !
+
+!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:30:40'!
 greet
 	| firstName greeting lastName |
 
@@ -552,7 +710,7 @@ greet
 		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
 	greetLabel contents: greeting.! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:43:55'!
+!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:43:55'!
 initialize
 	| button extent firstNameRow form image lastNameRow window |
 	
@@ -591,7 +749,7 @@ initialize
 	
 ! !
 
-!UserInteractionDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:45:49'!
+!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:45:49'!
 rowLabel: aString
 	"Answer a row LayoutMorph containing a LabelMorph and a TextModelMorph."
 	| row tmm |
