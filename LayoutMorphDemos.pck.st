@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 26 March 2025 at 4:04:35 pm'!
+'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 1:34:31 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 30!
+!provides: 'LayoutMorphDemos' 1 36!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -27,7 +27,7 @@ LayoutMorphDemos class
 
 !classDefinition: #ListDemo category: #LayoutMorphDemos!
 Object subclass: #ListDemo
-	instanceVariableNames: 'colorList colors newColor newColorEntry selectedColorIndex selectedLabel'
+	instanceVariableNames: 'addButton colorList colors deleteButton newColor newColorEntry selectedColorIndex selectedLabel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -359,10 +359,12 @@ newColor
 	^ newColor
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 16:02:13'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:17:27'!
 newColor: aString
 
-	newColor := aString
+	newColor := aString.
+	self changed: #newColor.
+	self changed: #clearUserEdits.
 ! !
 
 !ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
@@ -371,17 +373,18 @@ selectedColorIndex
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:54:25'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:32:46'!
 selectedColorIndex: anIndex
 
 	selectedColorIndex := anIndex.
+	deleteButton enable: anIndex ~= 0.
 	selectedLabel contents: ('You selected {1}.' format: { colors at: anIndex }).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 16:02:27'!
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 13:33:09'!
 initialize
-	| addButton deleteButton layout window |
+	| layout row window |
 	
-	colors := SortedCollection newFrom: #(red green blue).
+	colors := SortedCollection newFrom: #(red orange yellow green blue purple).
 	selectedColorIndex := 0.
 	newColor := ''.
 	
@@ -390,43 +393,62 @@ initialize
 		listGetter: #colors
 		indexGetter: #selectedColorIndex
 		indexSetter: #selectedColorIndex:.
+	
 	newColorEntry :=  self textEntryOn: #newColor.
-	addButton := PluggableButtonMorph model: self action: #addColor label: 'Add Color'.
-	deleteButton := PluggableButtonMorph model: self action: #deleteColor label: 'Delete Selected Color'.
+	newColorEntry emptyTextDisplayMessage: 'new color'.
+	newColorEntry keystrokeAction: [ :event |
+		event keyValue = 13 ifTrue: [ self addColor ]
+	].
+	
+	addButton := PluggableButtonMorph model: self action: #addColor label: 'Add'.
+	
+	row := LayoutMorph newRow
+		gap: 10;
+		addMorph: newColorEntry;
+		addMorph: addButton.
+
+	deleteButton := PluggableButtonMorph model: self action: #deleteColor label: 'Delete Selected'.
+	deleteButton disable.
+	
 	selectedLabel := LabelMorph contents: ''.
 	
 	window := SystemWindow new.
 	window
 		setLabel: 'List Demo';
 		addMorph: colorList;
-		addMorph: newColorEntry;
-		addMorph: addButton;
+		addMorph: row;
 		addMorph: deleteButton;
 		addMorph: selectedLabel;
 		openInWorld.
-		
+	
+	window layoutMorph color: (Color blue alpha: 0.1).
+
 	"Set window size to the smallest height that contains its submorphs.
 	This must be done AFTER the window is opened."
 	layout := window layoutMorph.
-	layout padding: 10.
+	layout separation: 10.
 	window morphExtent: 300 @ layout minimumExtent y.! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 16:04:26'!
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:26:58'!
 addColor
+	| color |
 
+	color := newColor string withBlanksTrimmed.
 	newColor isEmpty ifFalse: [
-		colors add: newColor string asSymbol.
-		newColorEntry contents:​ ''.
+		colors add: color asSymbol.
+		self newColor: ''.
 		colorList updateList.
 	]! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 16:03:44'!
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:33:56'!
 deleteColor
 
 	selectedColorIndex = 0 ifFalse: [
 		colors removeAt: selectedColorIndex.
 		colorList updateList.
+		deleteButton disable.
 		selectedColorIndex := 0.
+		colorList updateList.
 		selectedLabel contents: ''.
 	]! !
 
