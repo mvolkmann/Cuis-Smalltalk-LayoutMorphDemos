@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 1:49:43 pm'!
+'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 3:47:09 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 39!
+!provides: 'LayoutMorphDemos' 1 46!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -27,12 +27,22 @@ LayoutMorphDemos class
 
 !classDefinition: #ListDemo category: #LayoutMorphDemos!
 Object subclass: #ListDemo
-	instanceVariableNames: 'addButton colorList colors deleteButton newColor newColorEntry selectedColorIndex selectedLabel'
+	instanceVariableNames: 'addButton colorList colors deleteButton newColorEntry newColorName selectedColorIndex selectedLabel window'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'ListDemo class' category: #LayoutMorphDemos!
 ListDemo class
+	instanceVariableNames: ''!
+
+!classDefinition: #MenuDemo category: #LayoutMorphDemos!
+Object subclass: #MenuDemo
+	instanceVariableNames: 'selectedColor statusLabel'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'MenuDemo class' category: #LayoutMorphDemos!
+MenuDemo class
 	instanceVariableNames: ''!
 
 !classDefinition: #TextModelMorphDemo category: #LayoutMorphDemos!
@@ -353,16 +363,16 @@ colors
 
 	^ colors! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:43:59'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:18:28'!
 newColor
 
-	^ newColor
+	^ newColorName
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:44:14'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:18:28'!
 newColor: aString
 
-	newColor := aString.
+	newColorName := aString.
 	self changed: #newColor.
 	self changed: #clearUserEdits.
 	addButton enable: aString isEmpty not.
@@ -374,23 +384,33 @@ selectedColorIndex
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:48:56'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:12:19'!
 selectedColorIndex: anIndex
-
+	| color colorName selected |
+	
 	selectedColorIndex := anIndex.
-	deleteButton enable: anIndex ~= 0.
-	selectedLabel contents: (anIndex = 0
-		ifTrue: ''
-		ifFalse: [ 'You selected {1}.' format: { colors at: anIndex } ]
-	).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 13:37:21'!
+	selected := anIndex ~= 0.
+	deleteButton enable: selected.
+	colorName := selected ifTrue: [ colors at: anIndex ].
+	
+	selectedLabel contents: (colorName
+		ifNil: ''
+		ifNotNil: [ 'You selected {1}.' format: { colorName } ]
+	).
+
+	color := colorName
+		ifNil: [ Color gray ]
+		ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
+	window layoutMorph color: (color alpha: 0.6).! !
+
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 14:23:33'!
 initialize
-	| layout row window |
+	| layout row |
 	
 	colors := SortedCollection newFrom: #(red orange yellow green blue purple).
 	selectedColorIndex := 0.
-	newColor := ''.
+	newColorName := ''.
 	
 	colorList := PluggableListMorph
 		withModel: self
@@ -413,8 +433,10 @@ initialize
 		addMorph: newColorEntry;
 		addMorph: addButton.
 
-	deleteButton := PluggableButtonMorph model: self action: #deleteColor label: 'Delete Selected'.
-	deleteButton disable.
+	deleteButton := PluggableButtonMorph
+		model: self
+		action: #deleteColor
+		label: 'Delete Selected Color'.
 	
 	selectedLabel := LabelMorph contents: ''.
 	
@@ -427,23 +449,24 @@ initialize
 		addMorph: selectedLabel;
 		openInWorld.
 	
-	window layoutMorph color: (Color blue alpha: 0.1).
+	self selectedColorIndex: 0. "sets initial background color"
 
 	"Set window size to the smallest height that contains its submorphs.
 	This must be done AFTER the window is opened."
 	layout := window layoutMorph.
 	layout separation: 10.
-	window morphExtent: 300 @ layout minimumExtent y.! !
+	window morphExtent: 250 @ layout minimumExtent y.! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:44:04'!
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 14:18:28'!
 addColor
-	| color |
+	| colorName |
 
-	color := newColor string withBlanksTrimmed.
-	newColor isEmpty ifFalse: [
-		colors add: color asSymbol.
-		self newColor: ''.
+	colorName := newColorName string withBlanksTrimmed.
+	newColorName isEmpty ifFalse: [
+		colors add: colorName asSymbol.
 		colorList updateList.
+		self newColor: ''.
+		self selectedColorIndex: (colors indexOf: colorName).
 	]! !
 
 !ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:49:39'!
@@ -476,6 +499,38 @@ textEntryOn: aSymbol
 	entry layoutSpec proportionalWidth: 1.
 	^ entry.
 ! !
+
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/27/2025 15:46:41'!
+colorSelected: aColor
+	
+	selectedColor := aColor.
+	statusLabel contents: ('You selected {1}.' format: { aColor }).! !
+
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/27/2025 15:46:51'!
+initialize
+	| colors layout menu window |
+	
+	menu := MenuMorph new
+		defaultTarget: self;
+		stayUp.
+
+	colors := #(red orange yellow green blue purple).
+	colors do: [ :color | menu add: color action: #colorSelected: argument: color ].
+	
+	statusLabel := LabelMorph contents: ''.
+	
+	window := SystemWindow new.
+	window
+		setLabel: 'Menu Demo';
+		addMorph: menu;
+		addMorph: statusLabel;
+		openInWorld.
+
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	layout := window layoutMorph.
+	layout separation: 10.
+	window morphExtent: 300 @ layout minimumExtent y.! !
 
 !TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
 handleButtonClick
