@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 1:34:31 pm'!
+'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 1:49:43 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 36!
+!provides: 'LayoutMorphDemos' 1 39!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -359,12 +359,13 @@ newColor
 	^ newColor
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:17:27'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:44:14'!
 newColor: aString
 
 	newColor := aString.
 	self changed: #newColor.
 	self changed: #clearUserEdits.
+	addButton enable: aString isEmpty not.
 ! !
 
 !ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
@@ -373,14 +374,17 @@ selectedColorIndex
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:32:46'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 13:48:56'!
 selectedColorIndex: anIndex
 
 	selectedColorIndex := anIndex.
 	deleteButton enable: anIndex ~= 0.
-	selectedLabel contents: ('You selected {1}.' format: { colors at: anIndex }).! !
+	selectedLabel contents: (anIndex = 0
+		ifTrue: ''
+		ifFalse: [ 'You selected {1}.' format: { colors at: anIndex } ]
+	).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 13:33:09'!
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 13:37:21'!
 initialize
 	| layout row window |
 	
@@ -393,6 +397,7 @@ initialize
 		listGetter: #colors
 		indexGetter: #selectedColorIndex
 		indexSetter: #selectedColorIndex:.
+	colorList layoutSpec proportionalWidth: 1.
 	
 	newColorEntry :=  self textEntryOn: #newColor.
 	newColorEntry emptyTextDisplayMessage: 'new color'.
@@ -401,6 +406,7 @@ initialize
 	].
 	
 	addButton := PluggableButtonMorph model: self action: #addColor label: 'Add'.
+	addButton disable.
 	
 	row := LayoutMorph newRow
 		gap: 10;
@@ -429,7 +435,7 @@ initialize
 	layout separation: 10.
 	window morphExtent: 300 @ layout minimumExtent y.! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:26:58'!
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:44:04'!
 addColor
 	| color |
 
@@ -440,14 +446,12 @@ addColor
 		colorList updateList.
 	]! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:33:56'!
+!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:49:39'!
 deleteColor
 
 	selectedColorIndex = 0 ifFalse: [
 		colors removeAt: selectedColorIndex.
-		colorList updateList.
-		deleteButton disable.
-		selectedColorIndex := 0.
+		self selectedColorIndex: 0.
 		colorList updateList.
 		selectedLabel contents: ''.
 	]! !
