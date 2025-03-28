@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 27 March 2025 at 3:47:09 pm'!
+'From Cuis7.3 [latest update: #7092] on 28 March 2025 at 10:20:18 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 46!
+!provides: 'LayoutMorphDemos' 1 51!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -37,7 +37,7 @@ ListDemo class
 
 !classDefinition: #MenuDemo category: #LayoutMorphDemos!
 Object subclass: #MenuDemo
-	instanceVariableNames: 'selectedColor statusLabel'
+	instanceVariableNames: 'colorButton colorMenu colors window'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -500,30 +500,22 @@ textEntryOn: aSymbol
 	^ entry.
 ! !
 
-!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/27/2025 15:46:41'!
-colorSelected: aColor
-	
-	selectedColor := aColor.
-	statusLabel contents: ('You selected {1}.' format: { aColor }).! !
-
-!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/27/2025 15:46:51'!
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/28/2025 10:18:49'!
 initialize
-	| colors layout menu window |
+	| layout |
 	
-	menu := MenuMorph new
-		defaultTarget: self;
-		stayUp.
-
+	colorButton := PluggableButtonMorph
+		model: self
+		action: #openMenu
+		label: 'Select Color'.
+	
 	colors := #(red orange yellow green blue purple).
-	colors do: [ :color | menu add: color action: #colorSelected: argument: color ].
-	
-	statusLabel := LabelMorph contents: ''.
-	
+	colorMenu := SelectionMenu labels: colors lines: #().
+		
 	window := SystemWindow new.
 	window
 		setLabel: 'Menu Demo';
-		addMorph: menu;
-		addMorph: statusLabel;
+		addMorph: colorButton;
 		openInWorld.
 
 	"Set window size to the smallest height that contains its submorphs.
@@ -531,6 +523,21 @@ initialize
 	layout := window layoutMorph.
 	layout separation: 10.
 	window morphExtent: 300 @ layout minimumExtent y.! !
+
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/28/2025 10:18:58'!
+openMenu
+	| color colorName index |
+
+	index := colorMenu startUpMenu.
+	index = 0 ifFalse: [
+		colorName := colors at: index.
+		colorButton label: colorName.
+		
+		color := colorName
+			ifNil: [ Color gray ]
+			ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
+		window layoutMorph color: (color alpha: 0.6).
+	].! !
 
 !TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
 handleButtonClick
