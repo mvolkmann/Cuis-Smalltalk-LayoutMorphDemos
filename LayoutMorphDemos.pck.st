@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 28 March 2025 at 10:20:18 am'!
+'From Cuis7.3 [latest update: #7092] on 28 March 2025 at 2:35:00 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 51!
+!provides: 'LayoutMorphDemos' 1 52!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -27,7 +27,7 @@ LayoutMorphDemos class
 
 !classDefinition: #ListDemo category: #LayoutMorphDemos!
 Object subclass: #ListDemo
-	instanceVariableNames: 'addButton colorList colors deleteButton newColorEntry newColorName selectedColorIndex selectedLabel window'
+	instanceVariableNames: 'colorList colors deleteButton newColorEntry selectedColorIndex selectedLabel window'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -358,24 +358,46 @@ makeRow
 path
 	^​ '/Users/volkmannm/Documents/dev/lang/smalltalk/Cuis-Booklets/designGUI/chapter-03/img/'! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:15:39'!
+!ListDemo methodsFor: 'callback-ui' stamp: 'rmv 3/28/2025 13:55:45'!
+addColor
+	
+	self newColor: newColorEntry text! !
+
+!ListDemo methodsFor: 'callback-ui' stamp: 'rmv 3/28/2025 14:25:30'!
 colors
 
 	^ colors! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:18:28'!
+!ListDemo methodsFor: 'callback-ui' stamp: 'rmv 3/27/2025 13:49:39'!
+deleteColor
+
+	selectedColorIndex = 0 ifFalse: [
+		colors removeAt: selectedColorIndex.
+		self selectedColorIndex: 0.
+		colorList updateList.
+		selectedLabel contents: ''.
+	]! !
+
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/28/2025 14:21:30'!
 newColor
+	"In this app there is no need to retrieve this value
+	or even hold it in an instance variable, but
+	TextModelMorph requires that this method exists."
+	
+	^ ''! !
 
-	^ newColorName
-! !
+!ListDemo methodsFor: 'accessing' stamp: 'hlsf 3/28/2025 17:02:03'!
+newColor: aText
+	| potentialColor |
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:18:28'!
-newColor: aString
-
-	newColorName := aString.
-	self changed: #newColor.
+	potentialColor := aText asString withBlanksTrimmed.
+	potentialColor ifNotEmpty: [
+		colors add: potentialColor asSymbol.
+		colorList updateList.
+		self selectedColorIndex: (colors indexOf: potentialColor )].
 	self changed: #clearUserEdits.
-	addButton enable: aString isEmpty not.
+	self changed: #newColor.
+
 ! !
 
 !ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
@@ -384,7 +406,7 @@ selectedColorIndex
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/27/2025 14:12:19'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/28/2025 14:31:18'!
 selectedColorIndex: anIndex
 	| color colorName selected |
 	
@@ -404,14 +426,12 @@ selectedColorIndex: anIndex
 		ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
 	window layoutMorph color: (color alpha: 0.6).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/27/2025 14:23:33'!
+!ListDemo methodsFor: 'initialization' stamp: 'hlsf 3/28/2025 16:36:48'!
 initialize
-	| layout row |
+	| layout row addButton |
 	
 	colors := SortedCollection newFrom: #(red orange yellow green blue purple).
 	selectedColorIndex := 0.
-	newColorName := ''.
-	
 	colorList := PluggableListMorph
 		withModel: self
 		listGetter: #colors
@@ -421,12 +441,8 @@ initialize
 	
 	newColorEntry :=  self textEntryOn: #newColor.
 	newColorEntry emptyTextDisplayMessage: 'new color'.
-	newColorEntry keystrokeAction: [ :event |
-		event keyValue = 13 ifTrue: [ self addColor ]
-	].
 	
 	addButton := PluggableButtonMorph model: self action: #addColor label: 'Add'.
-	addButton disable.
 	
 	row := LayoutMorph newRow
 		gap: 10;
@@ -457,45 +473,21 @@ initialize
 	layout separation: 10.
 	window morphExtent: 250 @ layout minimumExtent y.! !
 
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 14:18:28'!
-addColor
-	| colorName |
-
-	colorName := newColorName string withBlanksTrimmed.
-	newColorName isEmpty ifFalse: [
-		colors add: colorName asSymbol.
-		colorList updateList.
-		self newColor: ''.
-		self selectedColorIndex: (colors indexOf: colorName).
-	]! !
-
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/27/2025 13:49:39'!
-deleteColor
-
-	selectedColorIndex = 0 ifFalse: [
-		colors removeAt: selectedColorIndex.
-		self selectedColorIndex: 0.
-		colorList updateList.
-		selectedLabel contents: ''.
-	]! !
-
-!ListDemo methodsFor: 'private' stamp: 'rmv 3/26/2025 15:28:12'!
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/28/2025 14:30:45'!
 textEntryOn: aSymbol
 	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
 	| entry |
 		
 	entry := TextModelMorph
 		textProvider: self
-		textGetter: aSymbol
+		textGetter: aSymbol 
 		textSetter: (aSymbol, ':') asSymbol ::
-		acceptOnAny: true;
+		acceptOnCR: true;
 		askBeforeDiscardingEdits: false;
 		hideScrollBarsIndefinitely;
 		"Width is made proportional below.
 		Setting height to zero causes it to use minimum height for one line."
-		morphExtent: 0 @ 0;
-		tabToFocus: true;
-		wrapFlag: false.
+		morphExtent: 0 @ 0.
 	entry layoutSpec proportionalWidth: 1.
 	^ entry.
 ! !
