@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 28 March 2025 at 2:35:00 pm'!
+'From Cuis7.3 [latest update: #7092] on 29 March 2025 at 4:53:24 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 52!
+!provides: 'LayoutMorphDemos' 1 54!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -386,7 +386,7 @@ newColor
 	
 	^ ''! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'hlsf 3/28/2025 17:02:03'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/28/2025 16:30:40'!
 newColor: aText
 	| potentialColor |
 
@@ -394,10 +394,10 @@ newColor: aText
 	potentialColor ifNotEmpty: [
 		colors add: potentialColor asSymbol.
 		colorList updateList.
-		self selectedColorIndex: (colors indexOf: potentialColor )].
-	self changed: #clearUserEdits.
-	self changed: #newColor.
-
+		self selectedColorIndex: (colors indexOf: potentialColor ).
+		self changed: #clearUserEdits.
+		self changed: #newColor.
+	].
 ! !
 
 !ListDemo methodsFor: 'accessing' stamp: 'rmv 3/26/2025 15:14:16'!
@@ -426,9 +426,28 @@ selectedColorIndex: anIndex
 		ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
 	window layoutMorph color: (color alpha: 0.6).! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'hlsf 3/28/2025 16:36:48'!
+!ListDemo methodsFor: 'morphic' stamp: 'rmv 3/28/2025 16:27:48'!
+textEntryOn: aSymbol
+	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
+	| entry |
+		
+	entry := TextModelMorph
+		textProvider: self
+		textGetter: aSymbol 
+		textSetter: (aSymbol, ':') asSymbol ::
+		acceptOnCR: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		"Width is made proportional below.
+		Setting height to zero causes it to use minimum height for one line."
+		morphExtent: 0 @ 0.
+	entry layoutSpec proportionalWidth: 1.
+	^ entry.
+! !
+
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/28/2025 16:28:49'!
 initialize
-	| layout row addButton |
+	| addButton layout row |
 	
 	colors := SortedCollection newFrom: #(red orange yellow green blue purple).
 	selectedColorIndex := 0.
@@ -472,25 +491,6 @@ initialize
 	layout := window layoutMorph.
 	layout separation: 10.
 	window morphExtent: 250 @ layout minimumExtent y.! !
-
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/28/2025 14:30:45'!
-textEntryOn: aSymbol
-	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
-	| entry |
-		
-	entry := TextModelMorph
-		textProvider: self
-		textGetter: aSymbol 
-		textSetter: (aSymbol, ':') asSymbol ::
-		acceptOnCR: true;
-		askBeforeDiscardingEdits: false;
-		hideScrollBarsIndefinitely;
-		"Width is made proportional below.
-		Setting height to zero causes it to use minimum height for one line."
-		morphExtent: 0 @ 0.
-	entry layoutSpec proportionalWidth: 1.
-	^ entry.
-! !
 
 !MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/28/2025 10:18:49'!
 initialize
