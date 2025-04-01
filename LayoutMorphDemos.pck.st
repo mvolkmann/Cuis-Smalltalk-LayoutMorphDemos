@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 3:04:41 pm'!
+'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 3:09:56 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 56!
+!provides: 'LayoutMorphDemos' 1 57!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -659,7 +659,7 @@ textEntryOn: aSymbol
 	^ entry.
 ! !
 
-!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:58:13'!
+!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 15:06:38'!
 initialize
 	| button extent firstNameEntry form image lastNameEntry window |
 	
@@ -686,8 +686,7 @@ initialize
 		addMorph: button;
 		addMorph: greetLabel.
 			
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
+	"Set window size to the smallest height that contains its submorphs."
 	extent := window layoutMorph minimumExtent.
 	window
 		morphExtent: 400 @ extent y;
