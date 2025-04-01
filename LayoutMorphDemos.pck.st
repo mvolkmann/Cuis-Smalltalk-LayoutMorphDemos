@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 29 March 2025 at 4:53:24 pm'!
+'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 11:34:47 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 54!
+!provides: 'LayoutMorphDemos' 1 55!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -13,6 +13,16 @@ Object subclass: #ButtonDemo
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'ButtonDemo class' category: #LayoutMorphDemos!
 ButtonDemo class
+	instanceVariableNames: ''!
+
+!classDefinition: #CheckboxMenuDemo category: #LayoutMorphDemos!
+Object subclass: #CheckboxMenuDemo
+	instanceVariableNames: 'colorButton colorMenu colors selectedColors messageLabel window'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'CheckboxMenuDemo class' category: #LayoutMorphDemos!
+CheckboxMenuDemo class
 	instanceVariableNames: ''!
 
 !classDefinition: #LayoutMorphDemos category: #LayoutMorphDemos!
@@ -139,6 +149,65 @@ initialize
 	layout := window layoutMorph.
 	layout padding: 10.
 	window morphExtent: 300 @ layout minimumExtent y.! !
+
+!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 11:01:37'!
+initialize
+	| layout |
+	
+	colors := #(red orange yellow green blue purple).
+	selectedColors := Set new.
+	self updateMenuLabels.
+		
+	colorButton := PluggableButtonMorph
+		model: self
+		action: #openMenu
+		label: 'Select Color'.
+	messageLabel := LabelMorph contents: 'no colors selected'.
+	
+	window := SystemWindow new.
+	window
+		setLabel: 'Checkbox Menu Demo';
+		addMorph: colorButton;
+		addMorph: messageLabel;
+		openInWorld.
+
+	"Set window size to the smallest height that contains its submorphs.
+	This must be done AFTER the window is opened."
+	layout := window layoutMorph.
+	layout separation: 10.
+	window morphExtent: 500 @ layout minimumExtent y.! !
+
+!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 11:34:24'!
+openMenu
+	| colorName index message |
+
+	index := colorMenu startUpMenu.
+	index = 0 ifFalse: [
+		colorName := colors at: index.
+		selectedColors includes: colorName ::
+			ifTrue: [ selectedColors remove: colorName ]
+			ifFalse: [ selectedColors add: colorName ].
+		colorButton label: colorName.
+		self updateMenuLabels.
+		
+		message := selectedColors isEmpty
+			ifTrue: 'no colors selected'
+			ifFalse: [
+				'You selected {1}.' format:
+					{ selectedColors asSortedCollection asOxfordCommaStringAnd }
+			].
+		messageLabel contents: message.
+	].! !
+
+!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 10:48:56'!
+updateMenuLabels
+	| labels prefix |
+
+	labels := colors collect: [ :color |
+		prefix := selectedColors includes: color :: ifTrue: '<yes>' ifFalse: '<no>'.
+		prefix, color
+	].
+	colorMenu := SelectionMenu labels: labels lines: #().! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
@@ -492,7 +561,7 @@ initialize
 	layout separation: 10.
 	window morphExtent: 250 @ layout minimumExtent y.! !
 
-!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/28/2025 10:18:49'!
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 10:35:35'!
 initialize
 	| layout |
 	
