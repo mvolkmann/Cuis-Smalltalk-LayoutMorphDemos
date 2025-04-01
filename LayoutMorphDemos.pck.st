@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 11:34:47 am'!
+'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 3:04:41 pm'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 55!
+!provides: 'LayoutMorphDemos' 1 56!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -15,9 +15,19 @@ Object subclass: #ButtonDemo
 ButtonDemo class
 	instanceVariableNames: ''!
 
+!classDefinition: #CheckboxMenu category: #LayoutMorphDemos!
+Object subclass: #CheckboxMenu
+	instanceVariableNames: 'items menu selectedItems'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'CheckboxMenu class' category: #LayoutMorphDemos!
+CheckboxMenu class
+	instanceVariableNames: 'items'!
+
 !classDefinition: #CheckboxMenuDemo category: #LayoutMorphDemos!
 Object subclass: #CheckboxMenuDemo
-	instanceVariableNames: 'colorButton colorMenu colors selectedColors messageLabel window'
+	instanceVariableNames: 'colorButton colorMenu colors messageLabel window'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'LayoutMorphDemos'!
@@ -55,46 +65,6 @@ Object subclass: #MenuDemo
 MenuDemo class
 	instanceVariableNames: ''!
 
-!classDefinition: #TextModelMorphDemo category: #LayoutMorphDemos!
-Object subclass: #TextModelMorphDemo
-	instanceVariableNames: 'text textModel'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'TextModelMorphDemo class' category: #LayoutMorphDemos!
-TextModelMorphDemo class
-	instanceVariableNames: ''!
-
-!classDefinition: #TextModelMorphDemo1 category: #LayoutMorphDemos!
-Object subclass: #TextModelMorphDemo1
-	instanceVariableNames: 'firstNameText lastNameText'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'TextModelMorphDemo1 class' category: #LayoutMorphDemos!
-TextModelMorphDemo1 class
-	instanceVariableNames: ''!
-
-!classDefinition: #TextModelMorphDemo2 category: #LayoutMorphDemos!
-Object subclass: #TextModelMorphDemo2
-	instanceVariableNames: 'firstNameTMM lastNameTMM firstNameText'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'TextModelMorphDemo2 class' category: #LayoutMorphDemos!
-TextModelMorphDemo2 class
-	instanceVariableNames: ''!
-
-!classDefinition: #TextModelMorphDemo3 category: #LayoutMorphDemos!
-Object subclass: #TextModelMorphDemo3
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'TextModelMorphDemo3 class' category: #LayoutMorphDemos!
-TextModelMorphDemo3 class
-	instanceVariableNames: ''!
-
 !classDefinition: #UserInteractionDemo category: #LayoutMorphDemos!
 Object subclass: #UserInteractionDemo
 	instanceVariableNames: 'firstName greetLabel lastName'
@@ -103,16 +73,6 @@ Object subclass: #UserInteractionDemo
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'UserInteractionDemo class' category: #LayoutMorphDemos!
 UserInteractionDemo class
-	instanceVariableNames: ''!
-
-!classDefinition: #UserInteractionDemoOld category: #LayoutMorphDemos!
-Object subclass: #UserInteractionDemoOld
-	instanceVariableNames: 'greetLabel firstNameTMM lastNameTMM'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'LayoutMorphDemos'!
-!classDefinition: 'UserInteractionDemoOld class' category: #LayoutMorphDemos!
-UserInteractionDemoOld class
 	instanceVariableNames: ''!
 
 
@@ -126,7 +86,7 @@ toggleColor
 	)
 ! !
 
-!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 15:16:37'!
+!ButtonDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:37:29'!
 initialize
 	| button extent window |
 	
@@ -136,78 +96,112 @@ initialize
 		label: 'Toggle'.
 	button setBalloonText: 'toggle background color'.
 	window := SystemWindow new.
-	window
-		setLabel: 'Button Demo';
-		addMorph: button;
-		openInWorld.
+	window setLabel: 'Button Demo'; addMorph: button.
 		
 	extent := button morphExtent.
 	button morphExtent: (extent x + 15) @ extent y.
 		
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
+	"Set window size to the smallest height that contains its submorphs."
 	layout := window layoutMorph.
 	layout padding: 10.
-	window morphExtent: 300 @ layout minimumExtent y.! !
+	window
+		morphExtent: 300 @ layout minimumExtent y;
+		openInWorld.
+! !
 
-!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 11:01:37'!
+!CheckboxMenu methodsFor: 'accessing' stamp: 'rmv 4/1/2025 14:13:41'!
+items: aCollection
+
+	items := aCollection! !
+
+!CheckboxMenu methodsFor: 'accessing' stamp: 'rmv 4/1/2025 14:07:26'!
+selectedItems
+
+	^ selectedItems! !
+
+!CheckboxMenu methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:18:59'!
+initialize
+	
+	selectedItems := Set new! !
+
+!CheckboxMenu methodsFor: 'user interface' stamp: 'rmv 4/1/2025 14:18:47'!
+open
+	| index item |
+
+	self updateMenuLabels.
+	index := menu startUpMenu.
+	index = 0 ifFalse: [
+		item := items at: index.
+		selectedItems includes: item ::
+			ifTrue: [ selectedItems remove: item ]
+			ifFalse: [ selectedItems add: item ].
+	].! !
+
+!CheckboxMenu methodsFor: 'private' stamp: 'rmv 4/1/2025 14:30:23'!
+updateMenuLabels
+	| labels prefix |
+
+	"Create label strings that have prefixes that indicate whether each item is selected."
+	labels := items collect: [ :item |
+		prefix := selectedItems includes: item :: ifTrue: '<on>' ifFalse: '<off>'.
+		"Alternative can use <yes> and <no>."
+		prefix, item asString
+	].
+	
+	menu := SelectionMenu labels: labels lines: #().! !
+
+!CheckboxMenu class methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 14:13:26'!
+items: aCollection
+
+	^ self new items: aCollection! !
+
+!CheckboxMenuDemo methodsFor: 'user interface' stamp: 'rmv 4/1/2025 14:23:18'!
+openMenu
+	| index message |
+
+	index := colorMenu open.
+	index = 0 ifFalse: [ self updateMessage ].! !
+
+!CheckboxMenuDemo methodsFor: 'user interface' stamp: 'rmv 4/1/2025 14:22:31'!
+updateMessage
+	| message selectedColors |
+
+	selectedColors := colorMenu selectedItems.
+	message := selectedColors isEmpty
+		ifTrue: 'No colors are selected.'
+		ifFalse: [
+			'You selected {1}.' format:
+				{ selectedColors asSortedCollection asOxfordCommaStringAnd }
+		].
+	messageLabel contents: message.! !
+
+!CheckboxMenuDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:33:20'!
 initialize
 	| layout |
 	
 	colors := #(red orange yellow green blue purple).
-	selectedColors := Set new.
-	self updateMenuLabels.
+	colorMenu := CheckboxMenu items:​ colors.
 		
 	colorButton := PluggableButtonMorph
 		model: self
 		action: #openMenu
 		label: 'Select Color'.
-	messageLabel := LabelMorph contents: 'no colors selected'.
+	messageLabel := LabelMorph contents: ''.
+	self updateMessage.
 	
 	window := SystemWindow new.
 	window
 		setLabel: 'Checkbox Menu Demo';
 		addMorph: colorButton;
-		addMorph: messageLabel;
-		openInWorld.
-
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
+		addMorph: messageLabel.
+		
+	"Set window size to the smallest height that contains its submorphs."
 	layout := window layoutMorph.
 	layout separation: 10.
-	window morphExtent: 500 @ layout minimumExtent y.! !
-
-!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 11:34:24'!
-openMenu
-	| colorName index message |
-
-	index := colorMenu startUpMenu.
-	index = 0 ifFalse: [
-		colorName := colors at: index.
-		selectedColors includes: colorName ::
-			ifTrue: [ selectedColors remove: colorName ]
-			ifFalse: [ selectedColors add: colorName ].
-		colorButton label: colorName.
-		self updateMenuLabels.
-		
-		message := selectedColors isEmpty
-			ifTrue: 'no colors selected'
-			ifFalse: [
-				'You selected {1}.' format:
-					{ selectedColors asSortedCollection asOxfordCommaStringAnd }
-			].
-		messageLabel contents: message.
-	].! !
-
-!CheckboxMenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 10:48:56'!
-updateMenuLabels
-	| labels prefix |
-
-	labels := colors collect: [ :color |
-		prefix := selectedColors includes: color :: ifTrue: '<yes>' ifFalse: '<no>'.
-		prefix, color
-	].
-	colorMenu := SelectionMenu labels: labels lines: #().! !
+	window
+		morphExtent: 500 @ layout minimumExtent y;
+		openInWorld.
+! !
 
 !LayoutMorphDemos class methodsFor: 'as yet unclassified' stamp: 'rmv 3/9/2025 08:14:52'!
 demo2
@@ -475,7 +469,7 @@ selectedColorIndex
 	^ selectedColorIndex
 ! !
 
-!ListDemo methodsFor: 'accessing' stamp: 'rmv 3/28/2025 14:31:18'!
+!ListDemo methodsFor: 'accessing' stamp: 'rmv 4/1/2025 14:41:24'!
 selectedColorIndex: anIndex
 	| color colorName selected |
 	
@@ -492,7 +486,11 @@ selectedColorIndex: anIndex
 
 	color := colorName
 		ifNil: [ Color gray ]
-		ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
+		ifNotNil: [
+			[ Color perform: colorName ]
+				on: MessageNotUnderstood
+				do: [ Color gray ]
+		].
 	window layoutMorph color: (color alpha: 0.6).! !
 
 !ListDemo methodsFor: 'morphic' stamp: 'rmv 3/28/2025 16:27:48'!
@@ -514,7 +512,7 @@ textEntryOn: aSymbol
 	^ entry.
 ! !
 
-!ListDemo methodsFor: 'initialization' stamp: 'rmv 3/28/2025 16:28:49'!
+!ListDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:43:00'!
 initialize
 	| addButton layout row |
 	
@@ -541,7 +539,7 @@ initialize
 		model: self
 		action: #deleteColor
 		label: 'Delete Selected Color'.
-	
+		
 	selectedLabel := LabelMorph contents: ''.
 	
 	window := SystemWindow new.
@@ -550,18 +548,18 @@ initialize
 		addMorph: colorList;
 		addMorph: row;
 		addMorph: deleteButton;
-		addMorph: selectedLabel;
-		openInWorld.
-	
-	self selectedColorIndex: 0. "sets initial background color"
+		addMorph: selectedLabel.
 
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
+	"Set window size to the smallest height that contains its submorphs."
 	layout := window layoutMorph.
 	layout separation: 10.
-	window morphExtent: 250 @ layout minimumExtent y.! !
+	window
+		morphExtent: 250 @ layout minimumExtent y;
+		openInWorld.
+	
+	self selectedColorIndex: 0. "sets initial background color"! !
 
-!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 10:35:35'!
+!MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 4/1/2025 14:44:28'!
 initialize
 	| layout |
 	
@@ -574,16 +572,15 @@ initialize
 	colorMenu := SelectionMenu labels: colors lines: #().
 		
 	window := SystemWindow new.
-	window
-		setLabel: 'Menu Demo';
-		addMorph: colorButton;
-		openInWorld.
+	window setLabel: 'Menu Demo'; addMorph: colorButton.
 
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
+	"Set window size to the smallest height that contains its submorphs."
 	layout := window layoutMorph.
 	layout separation: 10.
-	window morphExtent: 300 @ layout minimumExtent y.! !
+	window
+		morphExtent: 300 @ layout minimumExtent y;
+		openInWorld.
+! !
 
 !MenuDemo methodsFor: 'as yet unclassified' stamp: 'rmv 3/28/2025 10:18:58'!
 openMenu
@@ -599,263 +596,6 @@ openMenu
 			ifNotNil: [ [ Color perform: colorName ] on: MessageNotUnderstood do: [ Color gray ] ].
 		window layoutMorph color: (color alpha: 0.6).
 	].! !
-
-!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:50'!
-handleButtonClick
-	textModel scroller acceptContents.
-	self changed: #text:.
-	self changed: #relabel! !
-
-!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:42:11'!
-initialize
-	| button tm1 tm2 row window |
-		
-	text := 'initial value'.
-	textModel := TextModelMorph textProvider: self textGetter: #text textSetter: #text:.
-	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Click Me'.
-	
-	tm1 := TextModelMorph textProvider: self textGetter: #text textSetter:nil ::
-		disableEditing. 
-	tm2 := TextModelMorph textProvider: self textGetter: #text textSetter:nil ::
-		disableEditing;
-		morphExtent: 40@300 .  
-	row := LayoutMorph newRow.
-	row addMorph: tm2;
-		addMorph: (LayoutMorph newColumn ::
-			addMorph: textModel;
-			addMorph: button;
-			addMorph: tm1).
-		
-	window := SystemWindow new
-		setLabel: 'TextModelMorphDemo';
-		model: self;
-		addMorph: row.
-		
-	"The observer pattern, better "
-	self when: #relabel send: #relabel to: window.
-	window openInWorld.
-		
-! !
-
-!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:34:15'!
-labelString
-	^ text contractTo: 10! !
-
-!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 16:31:41'!
-text
-
-	^ text! !
-
-!TextModelMorphDemo methodsFor: 'as yet unclassified' stamp: 'hlsf 3/22/2025 12:42:48'!
-text: aString
-	text := aString asString copy.
-	self changed: #text.
-	self changed: #clearUserEdits.
-	self changed: #relabel "Same as self triggerEvent: #relabel"! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:45'!
-firstNameText
-
-	^ firstNameText! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:38'!
-firstNameText: aText
-
-	firstNameText := aText! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:19:27'!
-handleButtonClick
-	| message |
-	
-	"firstNameTMM scroller acceptContents."
-	"lastNameTMM scroller acceptContents."
-	message := 'Hello {1} {2}!!' format: { firstNameText asString. lastNameText asString }.
-	message print.! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:38:54'!
-initialize
-	| button extent firstNameRow firstNameTMM lastNameRow lastNameTMM window |
-		
-	firstNameText := Text string: ''.
-	firstNameTMM := TextModelMorph
-		textProvider: self
-		textGetter: #firstNameText
-		textSetter: #firstNameText:.
-	firstNameTMM
-		acceptOnAny: true;
-		askBeforeDiscardingEdits: false;
-		hideScrollBarsIndefinitely;
-		morphExtent: 200 @ 0; "calculates required height for one line"
-		tabToFocus: true;
-		wrapFlag: false.
-	firstNameRow := LayoutMorph newRow
-		gap: 10;
-		addMorph: (LabelMorph contents: 'First Name:');
-		addMorph: firstNameTMM.
-	firstNameRow layoutSpec proportionalHeight: 0.
-
-	lastNameText := Text string: ''.
-	lastNameTMM := TextModelMorph
-		textProvider: self
-		textGetter: #lastNameText
-		textSetter: #lastNameText:.
-	lastNameTMM
-		acceptOnAny: true;
-		askBeforeDiscardingEdits: false;
-		hideScrollBarsIndefinitely;
-		morphExtent: 200 @ 0; "calculates required height for one line"
-		tabToFocus: true;
-		wrapFlag: false.
-	lastNameRow := LayoutMorph newRow
-		gap: 10;
-		addMorph: (LabelMorph contents: 'Last Name:');
-		addMorph: lastNameTMM.
-	lastNameRow layoutSpec proportionalHeight: 0.
-
-	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Greet'.
-	
-	window := SystemWindow new.
-	window
-		setLabel: 'TextModelMorph Demo';
-		addMorph: firstNameRow;
-		addMorph: lastNameRow;
-		addMorph: button;
-		openInWorld.
-		
-	"Set a background color so it's clear where the TextModelMorphs
-	are placed when they do not have focus."
-	"TODO: Why must this be changed AFTER openInWorld?"
-	window layoutMorph
-		color: (Color blue alpha: 0.1);
-		separation: 10.
-			
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
-	extent := window layoutMorph minimumExtent.
-	window morphExtent: 400 @ extent y.
-
-! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:11:05'!
-lastNameText
-
-	^ lastNameText! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:11:13'!
-lastNameText: aText
-
-	lastNameText := aText! !
-
-!TextModelMorphDemo1 methodsFor: 'as yet unclassified' stamp: 'RMV 3/20/2025 18:10:25'!
-text: aText
-
-	text := aText! !
-
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 08:22:55'!
-handleButtonClick
-	| message |
-	
-	message := 'Hello {1} {2}!!' format: { firstNameTMM text. lastNameTMM text }.
-	message print.! !
-
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 16:20:00'!
-initialize
-	| button extent firstNameRow lastNameRow window |
-		
-	firstNameRow := self rowLabel: 'First Name:'.
-	firstNameTMM := firstNameRow firstSubmorph.
-	lastNameRow := self rowLabel: 'Last Name:'.
-	lastNameTMM := lastNameRow firstSubmorph.
-	button := PluggableButtonMorph model: self action: #handleButtonClick label: 'Greet'.
-	
-	window := SystemWindow new.
-	window
-		setLabel: 'TextModelMorph Demo';
-		addMorph: firstNameRow;
-		addMorph: lastNameRow;
-		addMorph: button;
-		openInWorld.
-		
-	"Set a background color so it's clear where the TextModelMorphs
-	are placed when they do not have focus."
-	"TODO: Why must this be changed AFTER openInWorld?"
-	window layoutMorph
-		color: (Color blue alpha: 0.1);
-		separation: 10.
-			
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
-	extent := window layoutMorph minimumExtent.
-	window morphExtent: 400 @ extent y.
-	
-	"This requires adding the following in InnerTextMorph acceptContents after accepted is set:
-	accepted class = TextModel ifTrue: [ owner changed: owner ]."
-	"firstNameTMM addDependent: self.
-	lastNameTMM addDependent: self."
-	"firstNameTMM model addDependent: self.
-	lastNameTMM model addDependent: self."
-	firstNameTMM model when: #actualContents send: #update to: self.
-! !
-
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'RMV 3/21/2025 11:36:21'!
-rowLabel: aString
-	| row tmm |
-		
-	tmm := TextModelMorph withText: '' ::
-		acceptOnAny: true;
-		askBeforeDiscardingEdits: false;
-		hideScrollBarsIndefinitely;
-		morphExtent: 200 @ 0; "calculates required height for one line"
-		tabToFocus: true;
-		wrapFlag: false.
-	row := LayoutMorph newRow
-		gap: 10;
-		addMorph: (LabelMorph contents: aString);
-		addMorph: tmm.
-	row layoutSpec proportionalHeight: 0.
-	^ row.
-
-! !
-
-!TextModelMorphDemo2 methodsFor: 'as yet unclassified' stamp: 'rmv 3/23/2025 16:18:44'!
-update: sender
-	
-	sender logAs: 'sender'.
-	
-	"sender = firstNameTMM ifTrue: [
-		value := sender model actualContents asString.
-		'first name is now ', value :: print
-	].
-	sender = lastNameTMM ifTrue: [
-		value := sender model actualContents asString.
-		'last name is now ', value :: print
-	]."
-! !
-
-!TextModelMorphDemo3 methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 14:34:46'!
-initialize
-	| tmm |
-	
-	tmm := TextModelMorph withText: '' ::
-		acceptOnAny: true;
-		askBeforeDiscardingEdits: false.
-	tmm keystrokeAction: [:event |
-		tmm text logAs: 'text'.
-	].
-"	scroller := tmm scroller.
-	scroller addDependent: self.
-	scroller setProperty: #keyStroke: toValue: [:event |
-		scroller changed: scroller model actualContents string
-	].
-"
-	SystemWindow new addMorph: tmm; openInWorld.
-! !
-
-!TextModelMorphDemo3 methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 07:50:54'!
-update: arg
-	
-	arg logAs: 'arg'.
-! !
 
 !UserInteractionDemo methodsFor: 'accessing' stamp: 'rmv 3/25/2025 13:42:46'!
 firstName
@@ -919,7 +659,7 @@ textEntryOn: aSymbol
 	^ entry.
 ! !
 
-!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 3/26/2025 14:49:37'!
+!UserInteractionDemo methodsFor: 'initialization' stamp: 'rmv 4/1/2025 14:58:13'!
 initialize
 	| button extent firstNameEntry form image lastNameEntry window |
 	
@@ -944,89 +684,16 @@ initialize
 		addMorph: (self rowLabeled: 'First Name:' for: firstNameEntry);
 		addMorph: (self rowLabeled: 'Last Name:' for: lastNameEntry);
 		addMorph: button;
-		addMorph: greetLabel;
-		openInWorld.
-		
-	"Set a background color so it's clear where the TextModelMorphs
-	are placed when they do not have focus."
-	"TODO: Why must this be changed AFTER openInWorld?"
-	window layoutMorph color: (Color blue alpha: 0.1).
+		addMorph: greetLabel.
 			
 	"Set window size to the smallest height that contains its submorphs.
 	This must be done AFTER the window is opened."
 	extent := window layoutMorph minimumExtent.
-	window morphExtent: 400 @ extent y.
-	
-! !
-
-!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:30:40'!
-greet
-	| firstName greeting lastName |
-
-	firstName := firstNameTMM text.
-	lastName := lastNameTMM text.
-	greeting := firstName isEmpty
-		ifTrue: ''
-		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
-	greetLabel contents: greeting.! !
-
-!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:43:55'!
-initialize
-	| button extent firstNameRow form image lastNameRow window |
-	
-	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
-	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: 0.5.
-	image := ImageMorph newWith: form.
-	
-	firstNameRow := self rowLabel: 'First Name:'.
-	firstNameTMM := firstNameRow submorphs first.
-	lastNameRow := self rowLabel: 'Last Name:'.
-	lastNameTMM := lastNameRow submorphs first.
-	button := PluggableButtonMorph model: self action: #greet label: 'Greet'.
-	
-	greetLabel := LabelMorph contents: ''.
-	
-	window := SystemWindow new.
-	window layoutMorph separation: 10.
 	window
-		setLabel: 'User Interaction Demo';
-		addMorph: image;
-		addMorph: firstNameRow;
-		addMorph: lastNameRow;
-		addMorph: button;
-		addMorph: greetLabel;
+		morphExtent: 400 @ extent y;
 		openInWorld.
 		
 	"Set a background color so it's clear where the TextModelMorphs
 	are placed when they do not have focus."
 	"TODO: Why must this be changed AFTER openInWorld?"
-	window layoutMorph color: (Color blue alpha: 0.1).
-			
-	"Set window size to the smallest height that contains its submorphs.
-	This must be done AFTER the window is opened."
-	extent := window layoutMorph minimumExtent.
-	window morphExtent: 400 @ extent y.
-	
-! !
-
-!UserInteractionDemoOld methodsFor: 'as yet unclassified' stamp: 'rmv 3/24/2025 16:45:49'!
-rowLabel: aString
-	"Answer a row LayoutMorph containing a LabelMorph and a TextModelMorph."
-	| row tmm |
-		
-	tmm := TextModelMorph withText: '' ::
-		acceptOnAny: true;
-		askBeforeDiscardingEdits: false;
-		hideScrollBarsIndefinitely;
-		"Width is made proportional below.
-		Setting height to zero causes it to use minimum height for one line."
-		morphExtent: 0 @ 0;
-		tabToFocus: true;
-		wrapFlag: false.
-	tmm layoutSpec proportionalWidth: 1.
-	row := LayoutMorph newRow
-		gap: 10;
-		addMorph: (LabelMorph contents: aString);
-		addMorph: tmm.
-	row layoutSpec proportionalHeight: 0.
-	^ row.! !
+	window layoutMorph color: (Color blue alpha: 0.1).! !
