@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7092] on 1 April 2025 at 3:09:56 pm'!
+'From Cuis7.3 [latest update: #7095] on 6 April 2025 at 11:39:35 am'!
 'Description '!
-!provides: 'LayoutMorphDemos' 1 57!
+!provides: 'LayoutMorphDemos' 1 61!
 !requires: 'Morf' 1 77 nil!
 SystemOrganization addCategory: #LayoutMorphDemos!
 
@@ -73,6 +73,36 @@ Object subclass: #UserInteractionDemo
 	category: 'LayoutMorphDemos'!
 !classDefinition: 'UserInteractionDemo class' category: #LayoutMorphDemos!
 UserInteractionDemo class
+	instanceVariableNames: ''!
+
+!classDefinition: #ValidatedTextModelMorphDemo category: #LayoutMorphDemos!
+Object subclass: #ValidatedTextModelMorphDemo
+	instanceVariableNames: 'firstName greetLabel lastName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'ValidatedTextModelMorphDemo class' category: #LayoutMorphDemos!
+ValidatedTextModelMorphDemo class
+	instanceVariableNames: ''!
+
+!classDefinition: #ValidatedTextModelMorph category: #LayoutMorphDemos!
+TextModelMorph subclass: #ValidatedTextModelMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'ValidatedTextModelMorph class' category: #LayoutMorphDemos!
+ValidatedTextModelMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #ValidatedInnerTextMorph category: #LayoutMorphDemos!
+InnerTextMorph subclass: #ValidatedInnerTextMorph
+	instanceVariableNames: 'charValidationBlock maxSize valueValidationBlock'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'LayoutMorphDemos'!
+!classDefinition: 'ValidatedInnerTextMorph class' category: #LayoutMorphDemos!
+ValidatedInnerTextMorph class
 	instanceVariableNames: ''!
 
 
@@ -162,7 +192,7 @@ openMenu
 	index := colorMenu open.
 	index = 0 ifFalse: [ self updateMessage ].! !
 
-!CheckboxMenuDemo methodsFor: 'user interface' stamp: 'rmv 4/1/2025 14:22:31'!
+!CheckboxMenuDemo methodsFor: 'user interface' stamp: 'rmv 4/1/2025 15:13:57'!
 updateMessage
 	| message selectedColors |
 
@@ -171,7 +201,8 @@ updateMessage
 		ifTrue: 'No colors are selected.'
 		ifFalse: [
 			'You selected {1}.' format:
-				{ selectedColors asSortedCollection asOxfordCommaStringAnd }
+				"{ selectedColors asSortedCollection asOxfordCommaStringAnd }"
+				{ ', ' join: selectedColors asSortedCollection }
 		].
 	messageLabel contents: message.! !
 
@@ -696,3 +727,176 @@ initialize
 	are placed when they do not have focus."
 	"TODO: Why must this be changed AFTER openInWorld?"
 	window layoutMorph color: (Color blue alpha: 0.1).! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'accessing' stamp: 'rmv 4/3/2025 11:31:30'!
+firstName
+
+	^ firstName! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'accessing' stamp: 'rmv 4/3/2025 11:31:30'!
+firstName: aString
+
+	firstName := aString! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'accessing' stamp: 'rmv 4/3/2025 11:31:30'!
+lastName
+
+	^ lastName! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'accessing' stamp: 'rmv 4/3/2025 11:31:30'!
+lastName: aString
+
+	lastName := aString! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'private' stamp: 'rmv 4/3/2025 11:31:30'!
+greet
+	| greeting |
+
+	greeting := firstName isEmpty
+		ifTrue: ''
+		ifFalse: [ 'Hello {1} {2}!!' format: {firstName. lastName} ].
+	greetLabel contents: greeting.! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'private' stamp: 'rmv 4/3/2025 11:31:30'!
+rowLabeled: aString for: aMorph
+	"Answer a row LayoutMorph containing a LabelMorph and a given morph."
+	| row |
+		
+	row := LayoutMorph newRow
+		gap: 10;
+		addMorph: (LabelMorph contents: aString);
+		addMorph: aMorph.
+	row layoutSpec proportionalHeight: 0.
+	^ row.! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'private' stamp: 'rmv 4/6/2025 11:37:58'!
+textEntryOn: aSymbol
+	"Answer a TextModelMorph where aSymbol provides the name for the getter and setter."
+	| entry |
+		
+	entry := ValidatedTextModelMorph
+		textProvider: self
+		textGetter: aSymbol
+		textSetter: (aSymbol, ':') asSymbol ::
+		acceptOnAny: true;
+		askBeforeDiscardingEdits: false;
+		hideScrollBarsIndefinitely;
+		"Don't allow more than five characters."
+		maxSize: 5;
+		"Only allow digits."
+		charValidationBlock: [ :char | char isDigit ];
+		"Width is made proportional below.
+		Setting height to zero causes it to use minimum height for one line."
+		morphExtent: 0 @ 0;
+		tabToFocus: true;
+		"Don't allow the first character to be zero."
+		valueValidationBlock: [ :value | value first ~= $0 ];
+		wrapFlag: false.
+	entry layoutSpec proportionalWidth: 1.
+	^ entry.
+! !
+
+!ValidatedTextModelMorphDemo methodsFor: 'initialization' stamp: 'rmv 4/3/2025 11:31:30'!
+initialize
+	| button extent firstNameEntry form image lastNameEntry window |
+	
+	firstName := ''.
+	lastName := ''.
+	
+	"Relative file paths start from the Cuis-Smalltalk-Dev-UserFiles directory."
+	form := Form fromFileNamed: './hot-air-balloon.png' :: magnifyBy: 0.5.
+	image := ImageMorph newWith: form.
+	
+	firstNameEntry := self textEntryOn: #firstName.
+	lastNameEntry := self textEntryOn: #lastName.
+	button := PluggableButtonMorph model: self action: #greet label: 'Greet'.
+	
+	greetLabel := LabelMorph contents: ''.
+	
+	window := SystemWindow new.
+	window layoutMorph separation: 10.
+	window
+		setLabel: 'User Interaction Demo';
+		addMorph: image;
+		addMorph: (self rowLabeled: 'First Name:' for: firstNameEntry);
+		addMorph: (self rowLabeled: 'Last Name:' for: lastNameEntry);
+		addMorph: button;
+		addMorph: greetLabel.
+			
+	"Set window size to the smallest height that contains its submorphs."
+	extent := window layoutMorph minimumExtent.
+	window
+		morphExtent: 400 @ extent y;
+		openInWorld.
+		
+	"Set a background color so it's clear where the TextModelMorphs
+	are placed when they do not have focus."
+	"TODO: Why must this be changed AFTER openInWorld?"
+	window layoutMorph color: (Color blue alpha: 0.1).! !
+
+!ValidatedTextModelMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/4/2025 16:14:48'!
+charValidationBlock: aBlock
+
+	scroller charValidationBlock: aBlock! !
+
+!ValidatedTextModelMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/3/2025 16:48:46'!
+innerMorphClass
+	
+	^ ValidatedInnerTextMorph! !
+
+!ValidatedTextModelMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/3/2025 18:26:59'!
+maxSize: anInteger
+
+	scroller maxSize: anInteger! !
+
+!ValidatedTextModelMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/6/2025 07:54:18'!
+valueValidationBlock: aBlock
+
+	scroller valueValidationBlock: aBlock! !
+
+!ValidatedInnerTextMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/4/2025 16:11:50'!
+charValidationBlock: aBlock
+
+	charValidationBlock := aBlock! !
+
+!ValidatedInnerTextMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/6/2025 11:35:58'!
+keyStroke: aKeyboardEvent
+	| allow |
+		
+	allow := aKeyboardEvent keyValue < 32. "includes arrow keys and backspace"
+	allow ifFalse: [ "not a control character"
+		allow := maxSize = nil or:
+			[ maxSize = 0 or:
+			[ self editor selectionInterval size > 0 or:
+			[ model actualContents size < maxSize ]]].
+		allow ifTrue: [ "will fit"
+			charValidationBlock ifNotNil: [
+				allow := charValidationBlock value: aKeyboardEvent keyCharacter
+			]
+		].
+		allow ifTrue: [
+			valueValidationBlock ifNotNil: [
+				| contents interval newValue |
+				contents := model actualContents copy.
+				interval := self editor selectionInterval.
+				newValue :=
+					(contents copyFrom: 1 to: interval first - 1),
+					aKeyboardEvent keyCharacter asString,
+					(contents copyFrom: interval last + 1 to: contents size).
+				allow := valueValidationBlock value: newValue.
+			]
+		].
+	].
+	allow
+		ifTrue: [ super keyStroke: aKeyboardEvent ]
+		ifFalse: [ Smalltalk beep ].! !
+
+!ValidatedInnerTextMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/3/2025 18:18:38'!
+maxSize: anInteger
+
+	maxSize := anInteger! !
+
+!ValidatedInnerTextMorph methodsFor: 'as yet unclassified' stamp: 'rmv 4/6/2025 07:53:59'!
+valueValidationBlock: aBlock
+
+	valueValidationBlock := aBlock! !
